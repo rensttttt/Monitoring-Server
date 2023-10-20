@@ -1,0 +1,96 @@
+Step 1 — Installing Apache and Updating the Firewall
+
+1. sudo apt update
+2. sudo apt install apache2
+3. sudo ufw app list
+
+Output
+Available applications:
+  Apache
+  Apache Full
+  Apache Secure
+  OpenSSH
+
+4. sudo ufw allow in "Apache"
+5. sudo ufw status
+
+Output
+Status: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere                                
+Apache                     ALLOW       Anywhere                  
+OpenSSH (v6)               ALLOW       Anywhere (v6)                    
+Apache (v6)                ALLOW       Anywhere (v6)
+
+6.  http://192.168.56.120
+
+Step 2 — Installing MySQL
+
+7. sudo apt install mysql-server
+8. sudo mysql
+mysql> ALTER USER 'ren_db'@'localhost' IDENTIFIED WITH mysql_native_password BY '123456';
+mysql> exit
+
+Step 3 — Installing PHP
+
+9. sudo apt install php libapache2-mod-php php-mysql
+10. php -v
+Output
+PHP 8.1.2 (cli) (built: Mar  4 2022 18:13:46) (NTS)
+Copyright (c) The PHP Group
+Zend Engine v4.1.2, Copyright (c) Zend Technologies
+    with Zend OPcache v8.1.2, Copyright (c), by Zend Technologies
+
+Step 4 — Creating a Virtual Host for your Website
+
+11. sudo mkdir /var/www/myweb
+12. sudo chown -R $USER:$USER /var/www/myweb
+13. sudo nano /etc/apache2/sites-available/myweb.conf
+(output)
+
+<VirtualHost *:81>
+    ServerName 192.168.56.120 
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/myweb
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+14. sudo a2ensite myweb
+15. sudo a2dissite 000-default
+16. sudo apache2ctl configtest
+17. sudo systemctl reload apache2
+18. sudo nano /var/www/myweb/index.html
+(output)
+
+<html>
+  <head>
+    <title>myweb</title>
+  </head>
+  <body>
+    <h1>Rendy Aditiya Putra K</h1>
+    <h1>22.83.0890</h1>
+  </body>
+</html>
+
+19. sudo nano /etc/apache2/mods-enabled/dir.conf
+(output)
+
+<IfModule mod_dir.c>
+        DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+</IfModule>
+
+20. sudo systemctl reload apache2
+
+Step 5 — Testing PHP Processing on your Web Server
+
+21. nano /var/www/myweb/info.php
+(output)
+
+<?php
+phpinfo(); ?>
+
+http://192.168.56.120/info.php
+

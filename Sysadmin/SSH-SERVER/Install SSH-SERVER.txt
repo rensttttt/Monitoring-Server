@@ -1,0 +1,32 @@
+Installing OpenSSH Server on Ubuntu 22.04
+
+1. sudo apt-get update
+2. sudo apt-get install openssh-server
+3. sudo systemctl status sshd
+4. netstat -tulpn | grep 22
+5. sudo ufw allow ssh
+6. sudo ufw status
+
+(Enable SSH server on system boot)
+
+7. sudo systemctl list-unit-files | grep enabled | grep ssh
+8. sudo systemctl enable ssh
+
+(Changing SSH default port)
+
+9. sudo nano /etc/ssh/sshd_config
+#Port 22 (hapus tanda pagar)
+
+(Disabling Root Login on your SSH server)
+
+10. PermitRootLogin no (hapus tanda pagar)
+
+(Restarting your SSH server to apply changes)
+
+11. sudo systemctl restart sshd
+12 sudo systemctl status sshd
+
+(Connecting to your SSH server)
+
+13. sudo ifconfig
+14. ssh rensec@192.168.56.120

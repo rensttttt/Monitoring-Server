@@ -1,0 +1,35 @@
+Install DNS-SERVER
+
+1. sudo apt update
+2. sudo apt install bind9
+3. sudo systemctl status bind9 (pastikan Running)
+4. cd /etc/bind
+5. sudo cp named.conf.local named.conf.local.old
+6. sudo nano named.conf.local 
+(output)
+
+zone	"rensec.com" {
+	type master ;
+	file  "/etc/bind/db.rensec";
+}
+
+zone	"120.56.168.192.addr.arpa" {
+	type master ;
+	file  "/etc/bind/db.192";
+}
+
+7. sudo cp db.255 db.192
+8. sudo nano db.192
+9. sudo nano /etc/reesolv.conf
+(NameServer ganti IP 192.168.56.120
+10. sudo systemctl restart bind9
+11. sudo systemctl status bind9
+
+(Untuk Mengetest Lakukan Perintah)
+
+dig rensec.com
+
+(untuk testing)
+nslookup rensec.com
+
+Kemudian masuk CMD lakukan ping rensec.com
