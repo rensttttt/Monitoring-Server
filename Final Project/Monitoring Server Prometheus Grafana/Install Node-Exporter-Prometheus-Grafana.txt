@@ -1,0 +1,133 @@
+
+How to Install Prometheus-Grafana-Node Exporter
+
+Step #1:Creating Prometheus System Users and Directory
+
+1. sudo apt update
+2. sudo useradd --no-create-home --shell /bin/false prometheus
+3. sudo mkdir /etc/prometheus
+4. sudo mkdir /var/lib/prometheus
+5. sudo chown prometheus:prometheus /var/lib/prometheus
+
+Step #2:Download Prometheus Binary File
+
+1. cd /tmp/
+2. wget https://github.com/prometheus/prometheus/releases/download/v2.46.0/prometheus-2.46.0.linux-amd64.tar.gz
+3. tar -xvf prometheus-2.46.0.linux-amd64.tar.gz
+4. cd prometheus-2.46.0.linux-amd64
+5. sudo mv console* /etc/prometheus
+6. sudo mv prometheus.yml /etc/prometheus
+7. sudo chown -R prometheus:prometheus /etc/prometheus
+8. sudo mv prometheus /usr/local/bin/
+9. sudo chown prometheus:prometheus /usr/local/bin/prometheus
+
+Step #3:Prometheus configuration file
+
+1. sudo nano /etc/prometheus/prometheus.yml
+
+Step #4:Creating Prometheus Systemd file
+
+1. sudo nano /etc/systemd/system/prometheus.service
+(OUTPUT)
+
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+    --config.file /etc/prometheus/prometheus.yml \
+    --storage.tsdb.path /var/lib/prometheus/ \
+    --web.console.templates=/etc/prometheus/consoles \
+    --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+
+2. sudo systemctl daemon-reload
+3. sudo systemctl start prometheus
+4. sudo systemctl enable prometheus
+5. sudo systemctl status prometheus
+(Make sure Prometheus is running or active)
+
+Step #5:Accessing Prometheus in Browser
+
+1. sudo ufw allow 9090/tcp
+(Now Prometheus service is ready to run and we can access it from any web browser)
+2. http://server-IP-or-Hostname:9090.
+
+Step #6:Download Node Exporter
+
+1. cd /tmp
+2. wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+3. sudo tar xvfz node_exporter-*.*-amd64.tar.gz
+4. sudo mv node_exporter-*.*-amd64/node_exporter /usr/local/bin/
+5. sudo useradd -rs /bin/false node_exporter
+
+Step #7:Creating Node Exporter Systemd service
+
+1. sudo nano /etc/systemd/system/node_exporter.service
+(OUTPUT)
+
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+
+2. sudo systemctl daemon-reload
+3. sudo systemctl start node_exporter
+4. sudo systemctl enable node_exporter
+5. sudo systemctl status node_exporter
+
+Step #8:Configure the Node Exporter as a Prometheus target
+
+1. sudo nano /etc/prometheus/prometheus.yml
+(OUTPUT)
+
+- job_name: 'Node_Exporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9100']
+
+2. sudo systemctl restart prometheus
+
+Step #9:Install Grafana on Ubuntu 22.04 LTS
+
+1. wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+2. sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+3. sudo apt update
+4. sudo apt install grafana
+5. sudo systemctl start grafana-server
+6. sudo systemctl status grafana-server
+7. sudo systemctl enable grafana-server
+8. http:localhost:3000
+	(DO LOGIN)
+9. Username – admin
+10. Password – admin
+
+Step #10:Configure Prometheus as Grafana DataSource
+
+1. Configure Prometheus as Grafana DataSource
+2. Now lets click on Add Data sources and select Prometheus
+3. Now configure Prometheus data source by providing Prometheus URL
+4. As per your requirement you can do other changes or you can also keep remaining configuration as default.
+5. Now click on Save & test so it will prompt a message Data Source is working.
+
+Step #11:Creating Grafana Dashboard to Monitor Linux Server
+
+1. Now lets build a dashboard in Grafana so then it will able to reflect the metrics of the Linux system.
+2. So we will use 14513 to import Grafana.com, Lets come to Grafana Home page and you can see a “+” icon. Click on that and select “Import”
+3. Now provide the name and select the Prometheus Datasource and click on Import.
+4. There you are done with the setup. Now your Dashboard is running up!.
